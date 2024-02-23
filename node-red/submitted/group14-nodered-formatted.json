@@ -1,0 +1,434 @@
+[
+    {
+        "id": "0f878789f06582b5",
+        "type": "tab",
+        "label": "Group 14 - Eval 2023",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "e807c082b0b6d000",
+        "type": "chatbot-telegram-receive",
+        "z": "0f878789f06582b5",
+        "bot": "e145681d1fc7e143",
+        "botProduction": "",
+        "x": 130,
+        "y": 120,
+        "wires": [
+            [
+                "5184967ff9bf82a8",
+                "cfccc86c2a7f48d4"
+            ]
+        ]
+    },
+    {
+        "id": "479846ca84a0d730",
+        "type": "chatbot-telegram-send",
+        "z": "0f878789f06582b5",
+        "bot": "e145681d1fc7e143",
+        "botProduction": "",
+        "track": false,
+        "passThrough": false,
+        "errorOutput": false,
+        "outputs": 0,
+        "x": 1670,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "5184967ff9bf82a8",
+        "type": "debug",
+        "z": "0f878789f06582b5",
+        "name": "Show Incoming Msg!",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 520,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "cfccc86c2a7f48d4",
+        "type": "switch",
+        "z": "0f878789f06582b5",
+        "name": "Divider",
+        "property": "payload.content",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "What tomorrow's forecast in Milano?",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "What tomorrow's forecast in Rome?",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "What's the forecast in two days in Milano?",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "What's the forecast in two days in Rome?",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "What's the expected wind speed tomorrow in Milano?",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "What's the expected wind speed tomorrow in Rome?",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "What's the expected wind speed in two days in Milano?",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "What's the expected wind speed in two days in Rome?",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "/start",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 10,
+        "x": 480,
+        "y": 280,
+        "wires": [
+            [
+                "eaa6b4e8e3bb6c8e"
+            ],
+            [
+                "922e91101398f7bd"
+            ],
+            [
+                "eaa6b4e8e3bb6c8e"
+            ],
+            [
+                "922e91101398f7bd"
+            ],
+            [
+                "eaa6b4e8e3bb6c8e"
+            ],
+            [
+                "922e91101398f7bd"
+            ],
+            [
+                "eaa6b4e8e3bb6c8e"
+            ],
+            [
+                "922e91101398f7bd"
+            ],
+            [
+                "e99882367db8c3a4"
+            ],
+            [
+                "35214ff5e71e4b4d"
+            ]
+        ]
+    },
+    {
+        "id": "5758ab51e433b84e",
+        "type": "openweathermap",
+        "z": "0f878789f06582b5",
+        "name": "Milano",
+        "wtype": "forecast",
+        "lon": "",
+        "lat": "",
+        "city": "Milan",
+        "country": "IT",
+        "language": "en",
+        "x": 990,
+        "y": 260,
+        "wires": [
+            [
+                "8ed8ecc607ee7da1"
+            ]
+        ]
+    },
+    {
+        "id": "7a127e23ff9b7ba5",
+        "type": "openweathermap",
+        "z": "0f878789f06582b5",
+        "name": "Rome",
+        "wtype": "forecast",
+        "lon": "",
+        "lat": "",
+        "city": "Rome",
+        "country": "IT",
+        "language": "en",
+        "x": 990,
+        "y": 320,
+        "wires": [
+            [
+                "4d28e8c36a4f252a"
+            ]
+        ]
+    },
+    {
+        "id": "8ed8ecc607ee7da1",
+        "type": "function",
+        "z": "0f878789f06582b5",
+        "name": "Milano",
+        "func": "let lastServed = context.get(\"lastServed\");\n\nlet counter = flow.get(\"counter\");\n\nif(msg.originalContent.startsWith(\"What tomorrow's forecast\")) {\n    let resp = String(msg.payload[8].weather[0].description);\n\n    msg.payload = \"Tomorrow's forecast for Milano is \" + resp + \"! \";\n\n    if (lastServed.forecast1 != null && lastServed.forecast1 != resp){\n        msg.payload += \"It changed since the last time I was asked!\";\n    } else if (lastServed.forecast1 != null) {\n        msg.payload += \"It is the same as the last time I was asked!\";\n    }\n\n    lastServed.forecast1 = resp;\n\n    counter.forecast = counter.forecast + 1;\n} else if(msg.originalContent.startsWith(\"What's the forecast in two days\")) {\n    let resp = String(msg.payload[16].weather[0].description);\n\n    msg.payload = \"The forecast in two days for Milano is \" + resp + \"! \";\n\n    if (lastServed.forecast2 != null && lastServed.forecast2 != resp) {\n        msg.payload += \"It changed since the last time I was asked!\";\n    } else if (lastServed.forecast2 != null){\n        msg.payload += \"It is the same as the last time I was asked!\";\n    }\n\n    lastServed.forecast2 = resp;\n\n    counter.forecast = counter.forecast + 1;\n} else if (msg.originalContent.startsWith(\"What's the expected wind speed tomorrow\")) {\n    let resp = String(msg.payload[8].wind.speed);\n\n    msg.payload = \"Expected wind speed tomorrow in Milano is \" + resp + \"! \";\n\n    if (lastServed.wind1 != null && lastServed.wind1 != resp) {\n        msg.payload += \"It changed since the last time I was asked!\";\n    } else if (lastServed.wind1 != null){\n        msg.payload += \"It is the same as the last time I was asked!\";\n    }\n\n    lastServed.wind1 = resp;\n\n    counter.wind = counter.wind + 1;\n} else if (msg.originalContent.startsWith(\"What's the expected wind speed in two days\")) {\n    let resp = String(msg.payload[16].wind.speed);\n\n    msg.payload = \"Expected wind speed in Milano in two days is \" + resp + \"! \";\n\n    if (lastServed.wind2 != null && lastServed.wind2 != resp) {\n        msg.payload += \"It changed since the last time I was asked!\";\n        lastServed.wind2 = resp;\n    } else if (lastServed.wind2 != null) {\n        msg.payload += \"It is the same as the last time I was asked!\";\n    }\n    \n    lastServed.wind2 = resp;\n\n    counter.wind = counter.wind + 1;\n}\n\ncontext.set(\"lastServed\", lastServed);\n\nflow.set(\"counter\", counter);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\n\nlet lastServed = {\n    forecast1: null,\n    forecast2: null,\n    wind1: null,\n    wind2: null\n};\n\ncontext.set(\"lastServed\", lastServed);",
+        "finalize": "",
+        "libs": [],
+        "x": 1210,
+        "y": 260,
+        "wires": [
+            [
+                "544e0119636a7763"
+            ]
+        ]
+    },
+    {
+        "id": "4d28e8c36a4f252a",
+        "type": "function",
+        "z": "0f878789f06582b5",
+        "name": "Rome",
+        "func": "let lastServed = context.get(\"lastServed\");\n\nlet counter = flow.get(\"counter\");\n\nif(msg.originalContent.startsWith(\"What tomorrow's forecast\")) {\n    let resp = String(msg.payload[8].weather[0].description);\n\n    msg.payload = \"Tomorrow's forecast for Rome is \" + resp + \"! \";\n\n    if (lastServed.forecast1 != null && lastServed.forecast1 != resp){\n        msg.payload += \"It changed since the last time I was asked!\";\n    } else if (lastServed.forecast1 != null) {\n        msg.payload += \"It is the same as the last time I was asked!\";\n    }\n\n    lastServed.forecast1 = resp;\n\n    counter.forecast = counter.forecast + 1;\n} else if(msg.originalContent.startsWith(\"What's the forecast in two days\")) {\n    let resp = String(msg.payload[16].weather[0].description);\n\n    msg.payload = \"The forecast in two days for Rome is \" + resp + \"! \";\n\n    if (lastServed.forecast2 != null && lastServed.forecast2 != resp) {\n        msg.payload += \"It changed since the last time I was asked!\";\n    } else if (lastServed.forecast2 != null){\n        msg.payload += \"It is the same as the last time I was asked!\";\n    }\n\n    lastServed.forecast2 = resp;\n\n    counter.forecast = counter.forecast + 1;\n} else if (msg.originalContent.startsWith(\"What's the expected wind speed tomorrow\")) {\n    let resp = String(msg.payload[8].wind.speed);\n\n    msg.payload = \"Expected wind speed tomorrow in Rome is \" + resp + \"! \";\n\n    if (lastServed.wind1 != null && lastServed.wind1 != resp) {\n        msg.payload += \"It changed since the last time I was asked!\";\n    } else if (lastServed.wind1 != null){\n        msg.payload += \"It is the same as the last time I was asked!\";\n    }\n\n    lastServed.wind1 = resp;\n\n    counter.wind = counter.wind + 1;\n} else if (msg.originalContent.startsWith(\"What's the expected wind speed in two days\")) {\n    let resp = String(msg.payload[16].wind.speed);\n\n    msg.payload = \"Expected wind speed in Rome in two days is \" + resp + \"! \";\n\n    if (lastServed.wind2 != null && lastServed.wind2 != resp) {\n        msg.payload += \"It changed since the last time I was asked!\";\n        lastServed.wind2 = resp;\n    } else if (lastServed.wind2 != null) {\n        msg.payload += \"It is the same as the last time I was asked!\";\n    }\n    \n    lastServed.wind2 = resp;\n\n    counter.wind = counter.wind + 1;\n}\n\ncontext.set(\"lastServed\", lastServed);\n\nflow.set(\"counter\", counter);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\n\nlet lastServed = {\n    forecast1: null,\n    forecast2: null,\n    wind1: null,\n    wind2: null\n};\n\ncontext.set(\"lastServed\", lastServed);",
+        "finalize": "",
+        "libs": [],
+        "x": 1210,
+        "y": 320,
+        "wires": [
+            [
+                "544e0119636a7763"
+            ]
+        ]
+    },
+    {
+        "id": "544e0119636a7763",
+        "type": "chatbot-message",
+        "z": "0f878789f06582b5",
+        "name": "Response",
+        "message": [
+            {
+                "message": "{{payload}}"
+            }
+        ],
+        "language": "none",
+        "x": 1440,
+        "y": 300,
+        "wires": [
+            [
+                "479846ca84a0d730"
+            ]
+        ]
+    },
+    {
+        "id": "eaa6b4e8e3bb6c8e",
+        "type": "function",
+        "z": "0f878789f06582b5",
+        "name": "Save message content",
+        "func": "msg.originalContent = msg.payload.content;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 260,
+        "wires": [
+            [
+                "5758ab51e433b84e"
+            ]
+        ]
+    },
+    {
+        "id": "922e91101398f7bd",
+        "type": "function",
+        "z": "0f878789f06582b5",
+        "name": "Save message content",
+        "func": "msg.originalContent = msg.payload.content;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 320,
+        "wires": [
+            [
+                "7a127e23ff9b7ba5"
+            ]
+        ]
+    },
+    {
+        "id": "1a2095fbd0979771",
+        "type": "inject",
+        "z": "0f878789f06582b5",
+        "name": "Inject file write",
+        "props": [],
+        "repeat": "60",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 140,
+        "y": 60,
+        "wires": [
+            [
+                "e0b882c29e284c63"
+            ]
+        ]
+    },
+    {
+        "id": "5a1cabd05d4664f0",
+        "type": "file",
+        "z": "0f878789f06582b5",
+        "name": "",
+        "filename": "/data/counter",
+        "filenameType": "str",
+        "appendNewline": true,
+        "createDir": false,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 740,
+        "y": 60,
+        "wires": [
+            [
+                "98d4cbf20b733a35"
+            ]
+        ]
+    },
+    {
+        "id": "e0b882c29e284c63",
+        "type": "function",
+        "z": "0f878789f06582b5",
+        "name": "Update counter",
+        "func": "let counter = flow.get(\"counter\");\n\nlet oldCounter = {\n    forecast: parseInt(counter.forecast),\n    wind: parseInt(counter.wind)\n};\n\nmsg.payload = oldCounter;\n\ncounter.forecast = 0;\ncounter.wind = 0;\n\nflow.set(\"counter\", counter);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\n\nlet counter = {\n    forecast: 0,\n    wind: 0\n};\n\nflow.set(\"counter\", counter);",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 60,
+        "wires": [
+            [
+                "e8871f14adc37a9c"
+            ]
+        ]
+    },
+    {
+        "id": "e8871f14adc37a9c",
+        "type": "json",
+        "z": "0f878789f06582b5",
+        "name": "",
+        "property": "payload",
+        "action": "str",
+        "pretty": false,
+        "x": 550,
+        "y": 60,
+        "wires": [
+            [
+                "5a1cabd05d4664f0"
+            ]
+        ]
+    },
+    {
+        "id": "98d4cbf20b733a35",
+        "type": "debug",
+        "z": "0f878789f06582b5",
+        "name": "Debug written file",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 970,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "e99882367db8c3a4",
+        "type": "chatbot-message",
+        "z": "0f878789f06582b5",
+        "name": "Start message",
+        "message": [
+            {
+                "message": "Welcome to the Eval Lab bot! This bot has been made by group 14 in NSDS at Politecnico di Milano.\n\nYou may use the bot to ask weather forecast or wind speed in Rome or Milan for tomorrow or the next day, according to OpenWeather data.\n\nQueries are formatted as in the following:\n\n- What tomorrow's forecast in Milano?\n- What's the forecast in two days in Milano?\n- What's the expected wind speed tomorrow in Milano?\n- What's the expected wind speed in two days in Milano?\n- What tomorrow's forecast in Rome?\n- What's the forecast in two days in Rome?\n- What's the expected wind speed tomorrow in Rome?\n- What's the expected wind speed in two days in Rome?"
+            }
+        ],
+        "language": "none",
+        "x": 1440,
+        "y": 400,
+        "wires": [
+            [
+                "479846ca84a0d730"
+            ]
+        ]
+    },
+    {
+        "id": "35214ff5e71e4b4d",
+        "type": "chatbot-message",
+        "z": "0f878789f06582b5",
+        "name": "Unexpected message",
+        "message": [
+            {
+                "message": "The query you entered is not ammitted. Please check the guide served through the /start command."
+            }
+        ],
+        "language": "none",
+        "x": 1440,
+        "y": 460,
+        "wires": [
+            [
+                "479846ca84a0d730"
+            ]
+        ]
+    },
+    {
+        "id": "e145681d1fc7e143",
+        "type": "chatbot-telegram-node",
+        "botname": "Node-RED Lab",
+        "usernames": "",
+        "polling": "1000",
+        "store": "",
+        "log": "",
+        "debug": false,
+        "skipMediaFiles": false,
+        "webHook": "",
+        "connectMode": "polling",
+        "storeMessages": true,
+        "enableMissionControl": false,
+        "inspectMessages": true,
+        "chatbotId": ""
+    }
+]
