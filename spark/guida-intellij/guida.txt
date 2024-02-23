@@ -1,0 +1,43 @@
+Da eseguire nell'emulatore di terminale IntelliJ, all'interno della cartella del progetto:
+
+ATTENZIONE: si assume di utilizzare sempre la repository del tutorial Spark nel branch solutions!
+
+Preparare, nella cartella del progetto IntelliJ, la seguente struttura:
+ - docker
+   - spark-events
+   - submit
+     - files (gli stessi caricati nel progetto tutorial)
+     - spark_tutorial-1.0.jar (maven package come mostrato in video 3)
+   - spark-defaults.conf
+
+Se il contaner verrà eseguito da Linux, eseguire su queste l'abilitazione alla scrittura nel container (chown 1000 ./cartella)
+
+Eseguire dunque:
+
+cd docker
+
+docker run -it --rm --name docker-spark -v "./spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf" -v "./spark-events:/tmp/spark-events" -v "./submit:/submit/" -p 7077:7077 -p 8080:8080 -p 8081:8081 -p 18080:18080 bitnami/spark:3.5.0 bash
+
+Questo comando crea il container e monta al suo interno le cartelle specificate (e la configurazione)
+
+Sul terminale del container che viene lanciato:
+
+export SPARK_MASTER_HOST=127.0.0.1
+
+./sbin/start-master.sh
+
+Su un altra finestra del terminale:
+
+docker exec -it docker-spark bash
+
+./sbin/start-worker.sh spark://127.0.0.1:7077
+
+./sbin/start-history-server.sh
+
+Esempio:
+
+./bin/spark-submit --class it.polimi.middleware.spark.batch.wordcount.WordCount /submit/spark_tutorial-1.0.jar spark://127.0.0.1:7077 /submit/
+
+./bin/spark-submit --class it.polimi.middleware.spark.batch.bank.Bank /submit/spark_tutorial-1.0.jar spark://127.0.0.1:7077 /submit/
+
+Verificare dunque la corretta funzionalità come indicato nel video 3

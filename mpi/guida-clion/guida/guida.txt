@@ -1,0 +1,70 @@
+Predisporre i seguenti file:
+
+- Dockerfile
+- docker-compose.yaml
+  - test
+    - mpi_hello_world.c
+    - test.sh
+
+Nella cartella del progetto, predisporre la cartella "compilato": qui verrà posizionato l'eseguibile compilato
+
+Infine, utilizzare il modello CMakeLists.txt fornito per crearlo all'interno del progetto
+(ignorare eventuali errori generati ora, non abbiamo ancora impostato il container come catena di compilazione)
+
+(Utilizzare il contenuto indicato al termine della guida)
+
+Creare l'immagine a partire dal modello:
+docker compose up
+
+Esso avvierà il download delle dipendenze di compilazione e un primo test di MPI, la durata varia in base alla velocità della connessione ad internet
+
+L'immagine così prodotta deve essere impostata come catena di compilazione in CLion:
+CLion -> Settings -> Build, Execution, Deployment -> Toolchains
+
+Aggiungere (+) un'immagine Docker: dovrebbe venire localizzato automaticamente e predisposto con gli strumenti corretti
+Il risultato dovrebbe essere simile a quanto mostrato in img1.png
+
+Spostare verso il primo posto questa immagine, per scegliere di utilizzarla come default
+
+Il risultato dovrebbe essere simile a quanto mostrato in img2.png
+Non dovrebbero verificarsi più errori legati a CMake in questa fase
+
+Bonus: impostare l'uso di Valgrind in CLion -> Settings -> Build, Execution, Deployment -> Dynamic Analysis Tools -> Valgrind
+E impostare come percorso /usr/bin/valgrind (come mostrato in img3.png)
+
+Infine, dal momento che la compilazione ed esecuzione di progetti MPI richiede in alcuni casi l'utilizzo di mpicc ed mpirun, è conveniente creare una configurazione
+che si occupi della compilazione ed esecuzione automaticamente, dovendo variare solamente il file oggetto di compilazione ed esecuzione
+
+A tal fine, avviare una finestra del terminale nell'emulatore terminale di CLion, lanciando un container a partire dall'immagine già costruita:
+docker run -it --rm --name container-mpi -v "$(pwd):/project/" strumenti-mpi sh
+
+È possibile ora ignorarla, ma DEVE RESTARE IN ESECUZIONE per potersi occupare della compilazione ed esecuzione attraverso CLion
+
+Creare una cartella "compilato" all'interno della directory del progetto CLion
+
+Creare una Run Configuration attraverso uno script shell (selezionando l'opzione Script Text) con il seguente script:
+Mac/Linux: docker exec -it container-mpi sh -c "rm -rf /project/compilato/eseguibile && mpicc -Wall -Werror -std=gnu11 -O2 -lm -g3 /project/src/$dacompilare -o /project/compilato/eseguibile && mpirun /project/compilato/eseguibile"
+Windows: docker exec -it container-mpi sh -c "rm -rf /project/compilato/eseguibile && mpicc -Wall -Werror -std=gnu11 -O2 -lm -g3 /project/src/hello_world.c -o /project/compilato/eseguibile && mpirun /project/compilato/eseguibile"
+(nella variante Windows, rimpiazzare "hello_world.c" con il file che si vuole venga compilato ed eseguito)
+
+Alterando questo comando, è possibile anche imporre l'uso di ulteriori parametri di avvio (es: numero n di core da utilizzare)
+
+Su Mac e Linux, è possibile impostare come Environment Variable la variabile "dacompilare", che conterrà il nome del file sorgente da compilare
+
+Il risultato sarà simile a quello in img4.png
+
+Ogni volta che si vorrà compilare ed eseguire un diverso sorgente, modificare la variabile "dacompilare" con il nome del sorgente da compilare
+
+
+
+Per procedere manualmente invece: a partire dalla cartella del progetto, lanciare il container, montando la cartella contenente i sorgenti:
+docker run -it --rm --name container-mpi -v "$(pwd):/project/" strumenti-mpi sh
+
+Verrà lanciato un container con la cartella del progetto montata in /project
+
+Per eseguire l'esempio base, ad esempio:
+cd /project/src/
+mpicc hello_world.c -o hello_world
+export OMPI_ALLOW_RUN_AS_ROOT=1
+export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+mpirun hello_world

@@ -1,0 +1,8 @@
+version: "3"
+services:
+  strumenti-mpi:
+    container_name: strumenti-mpi
+    build:
+#      context: ../..
+      dockerfile: ./Dockerfile
+    image: strumenti-mpi:latest
