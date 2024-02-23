@@ -11,3 +11,9 @@ See [license file](LICENSE)
 ### Specifications
 
 See _base_ folder for each course topic
+
+### Extra
+
+MPI configuration guide for CLion (in Italian): [see here](mpi/guida-clion/)
+
+Spark configuration guide for submission tests in a local environment (in Italian): [see here](spark/guida-intellij/)
